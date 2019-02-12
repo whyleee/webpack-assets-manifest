@@ -91,9 +91,6 @@ class WebpackAssetsManifest
     // The Webpack compiler instance
     this.compiler = null;
 
-    // compilation stats
-    this.stats = null;
-
     // This is used to identify hot module replacement files
     this.hmrRegex = null;
 
@@ -186,6 +183,21 @@ class WebpackAssetsManifest
   get isMerging()
   {
     return this[ IS_MERGING ];
+  }
+
+  /**
+   * The stats object is no longer kept around for memory usage reasons.
+   * Warn the user just in case they're using manifest.stats in the customize hook.
+   * Stats are still available in the done hook.
+   *
+   * @todo remove this in the next major version.
+   * @return {object}
+   */
+  get stats()
+  {
+    warn.once('manifest.stats has been removed. Please use the done hook instead.');
+
+    return {};
   }
 
   /**
@@ -442,12 +454,12 @@ class WebpackAssetsManifest
    */
   handleEmit(compilation, callback)
   {
-    this.stats = compilation.getStats().toJson({
+    const { assetsByChunkName } = compilation.getStats().toJson({
       all: false,
       assets: true,
     });
 
-    this.processAssetsByChunkName( this.stats.assetsByChunkName );
+    this.processAssetsByChunkName( assetsByChunkName );
 
     for ( const [ hashedFile, filename ] of this.assetNames ) {
       this.currentAsset = compilation.assets[ hashedFile ];
