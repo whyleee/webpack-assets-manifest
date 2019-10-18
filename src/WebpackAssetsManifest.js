@@ -570,7 +570,7 @@ class WebpackAssetsManifest
 
           // Don't prefix any keys that already start with [path]
           if (!originalName.startsWith(pathVariable)) {
-            originalName = path.join(pathVariable, originalName);
+            originalName = path.join(pathVariable, path.basename(originalName));
           }
         }
 
